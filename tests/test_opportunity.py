@@ -28,7 +28,9 @@ class TestOpportunity(Test):
 
         self.login_page.log_in(self.username, self.password)
         self.app_launcher.click_app_launcher_button()
+        # Search for "oppo" in app launcher search bar to access the "Opportunities" listing page
         self.app_launcher.enter_and_click_search_term(search_term="oppo")
+        # Verify the correct page was loaded by checking for the presence of the "New" button at the upper right
         try:
             self.driver.find_element(By.XPATH, self.opportunities_page.new_button)
             assert True
@@ -51,6 +53,7 @@ class TestOpportunity(Test):
         unique_name = self.opportunities_page.fill_required_fields()
         self.opportunities_page.click_save_button()
         time.sleep(5)
+        # After creating new opportunity, check for the presence of the success alert at the top
         try:
             if self.driver.find_element(By.XPATH, self.opportunities_page.successful_opportunity_creation_message.format(unique_name)):
                 assert True
