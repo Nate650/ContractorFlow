@@ -50,7 +50,7 @@ class TestOpportunity(Test):
         time.sleep(2)
         unique_name = self.opportunities_page.fill_required_fields()
         self.opportunities_page.click_save_button()
-        time.sleep(4)
+        time.sleep(5)
         try:
             if self.driver.find_element(By.XPATH, self.opportunities_page.successful_opportunity_creation_message.format(unique_name)):
                 assert True

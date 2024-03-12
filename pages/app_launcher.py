@@ -13,9 +13,12 @@ class AppLauncher:
 
     def click_app_launcher_button(self):
         self.driver.find_element(By.CLASS_NAME, self.app_launcher_button).click()
+        time.sleep(1)
 
     def enter_and_click_search_term(self, search_term):
         search_term_link_xpath = '//p[@class="slds-truncate"]'
         self.driver.find_element(By.XPATH, self.app_launcher_search_bar).clear()
         self.driver.find_element(By.XPATH, self.app_launcher_search_bar).send_keys(search_term)
+        time.sleep(1)
         self.driver.find_element(By.XPATH, search_term_link_xpath).click()
+        time.sleep(3)
