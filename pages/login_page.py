@@ -2,6 +2,8 @@ import time
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as ec
 
 
 class LoginPage:
@@ -27,4 +29,6 @@ class LoginPage:
         self.set_username(username)
         self.set_password(password)
         self.click_login_button()
-        time.sleep(3)
+        most_recently_used_span = '//span[text()="Most Recently Used"]'
+        WebDriverWait(self.driver, 7).until(
+            ec.presence_of_element_located((By.XPATH, most_recently_used_span)), "Failure: Expected element not found after login")
