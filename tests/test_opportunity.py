@@ -1,16 +1,13 @@
 import time
 
-import pytest
-from selenium import webdriver
-from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support import expected_conditions as ec
 from selenium.common.exceptions import NoSuchElementException, InvalidSelectorException
-
-from pages.login_page import LoginPage
 from pages.app_launcher import AppLauncher
-from pages.opportunities_page import OpportunitiesPage
-from pages.global_search import GlobalSearch
+from actions.login_action import LoginAction
+from actions.app_launcher_action import AppLauncherAction
+from actions.opportunity_action import OpportunityAction
+from actions.global_search_action import GlobalSearchAction
 from tests.test import Test
 
 
@@ -19,20 +16,23 @@ class TestOpportunity(Test):
     username = "test-g47godb2ia5t@example.com"
     password = "&9qNxuqiipgbu"
 
-    def test_nav_to_opportunities(self, setup):
+    def test_nav_to_opportunity_listing_page(self, setup):
         self.driver = setup
         self.driver.get(self.base_url)
-        self.login_page = LoginPage(self.driver)
+        self.login_action = LoginAction(self.driver)
+        self.login_page = self.login_action.page
+        self.app_launcher_action = AppLauncherAction(self.driver)
         self.app_launcher = AppLauncher(self.driver)
-        self.opportunities_page = OpportunitiesPage(self.driver)
+        self.opportunity_action = OpportunityAction(self.driver)
+        self.opportunity_page = self.opportunity_action.page
 
-        self.login_page.log_in(self.username, self.password)
-        self.app_launcher.click_app_launcher_button()
-        # Search for "oppo" in app launcher search bar to access the "Opportunities" listing page
-        self.app_launcher.enter_and_click_search_term(search_term="oppo")
+        self.login_action.log_in(self.username, self.password)
+        self.opportunity_action.nav_to_listing()
         # Verify the correct page was loaded by checking for the presence of the "New" button at the upper right
         try:
-            self.driver.find_element(By.XPATH, self.opportunities_page.new_button)
+            WebDriverWait(self.driver, 7).until(
+                ec.element_to_be_clickable(self.opportunity_page.new_button()),
+                'Failure: "New" button not found')
             assert True
         except NoSuchElementException:
             assert False
@@ -40,41 +40,46 @@ class TestOpportunity(Test):
     def test_create_and_update_new_opportunity(self, setup):
         self.driver = setup
         self.driver.get(self.base_url)
-        self.login_page = LoginPage(self.driver)
+        self.login_action = LoginAction(self.driver)
+        self.login_page = self.login_action.page
         self.app_launcher = AppLauncher(self.driver)
-        self.opportunities_page = OpportunitiesPage(self.driver)
-        self.global_search = GlobalSearch(self.driver)
+        self.opportunity_action = OpportunityAction(self.driver)
+        self.opportunity_page = self.opportunity_action.page
+        self.global_search_action = GlobalSearchAction(self.driver)
+        self.global_search = self.global_search_action.page
 
-        self.login_page.log_in(self.username, self.password)
-        self.driver.implicitly_wait(5)
-        self.opportunities_page.nav_to_opportunities_page()
-        self.opportunities_page.click_new_button()
+        self.login_action.log_in(self.username, self.password)
+        self.opportunity_action.nav_to_listing()
+        WebDriverWait(self.driver, 7).until(
+            ec.element_to_be_clickable(self.opportunity_page.new_button()),
+            'Failure: "New" button not found').click()
+        unique_name = self.opportunity_action.fill_required_fields()
+        self.opportunity_page.save_button().click()
         time.sleep(2)
-        unique_name = self.opportunities_page.fill_required_fields()
-        self.opportunities_page.click_save_button()
-        time.sleep(5)
         # After creating new opportunity, check for the presence of the success alert at the top
         try:
-            if self.driver.find_element(By.XPATH, self.opportunities_page.successful_opportunity_creation_message.format(unique_name)):
+            if self.opportunity_page.successful_opportunity_creation_message(value=unique_name):
                 assert True
         except InvalidSelectorException:
             assert False, "Failure: Creation of new opportunity failed"
-        assert self.driver.find_element(By.XPATH, self.opportunities_page.opportunity_name).text == unique_name, "Failure: New opportunity name does not match expected name"
-        self.global_search.click_search_bar()
+        assert self.opportunity_page.opportunity_name().text == unique_name, "Failure: New opportunity name does not match expected name"
+        time.sleep(3)
+        self.global_search.search_bar_button().click()
+        time.sleep(3)
         try:
-            if self.global_search.enter_and_click_search_term(search_term=unique_name):
+            if self.global_search_action.enter_and_click_search_term(search_term=unique_name):
                 assert True
         except NoSuchElementException:
             assert False, "Failure: Newly created opportunity not found in search results"
         time.sleep(3)
-        self.opportunities_page.click_edit_button()
+        self.opportunity_page.edit_button().click()
         time.sleep(2)
         new_stage_value = "Value Proposition"
-        self.opportunities_page.select_stage_dropdown_value(new_stage_value)
-        self.opportunities_page.click_save_button()
+        self.opportunity_action.select_stage_dropdown_value(new_stage_value)
+        self.opportunity_page.save_button().click()
         time.sleep(3)
         self.driver.refresh()
-        assert self.driver.find_element(By.XPATH,
-                                        self.opportunities_page.opportunity_name).text == unique_name, "Failure: Actual page does not match expected opportunity detail page"
+        time.sleep(5)
+        assert self.opportunity_page.opportunity_name().text == unique_name, "Failure: Actual page does not match expected opportunity detail page"
         self.driver.execute_script('window.scrollBy(0, 1000)')
-        assert self.driver.find_element(By.XPATH, self.opportunities_page.stage_history_latest_stage).text == new_stage_value, "Failure: Stage field does not reflect new stage that was set"
+        assert self.opportunity_page.stage_history_latest_stage().text == new_stage_value, "Failure: Stage field does not reflect new stage that was set"
