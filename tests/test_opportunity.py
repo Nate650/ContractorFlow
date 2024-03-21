@@ -28,6 +28,7 @@ class TestOpportunity(Test):
 
         self.login_action.log_in(self.username, self.password)
         self.opportunity_action.nav_to_listing()
+        time.sleep(3)
         # Verify the correct page was loaded by checking for the presence of the "New" button at the upper right
         try:
             WebDriverWait(self.driver, 7).until(
@@ -35,7 +36,7 @@ class TestOpportunity(Test):
                 'Failure: "New" button not found')
             assert True
         except NoSuchElementException:
-            assert False
+            assert False, 'Failure: "New" button not found'
 
     def test_create_and_update_new_opportunity(self, setup):
         self.driver = setup
