@@ -1,17 +1,17 @@
+import time
+
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as ec
 from tests.test import Test
-from pages.login_page import LoginPage
+from actions.login_action import LoginAction
 
 
 class TestLogin(Test):
-    base_url = "https://efficiency-customization-c2-dev-ed.scratch.my.salesforce.com/"
-    username = "test-g47godb2ia5t@example.com"
-    password = "&9qNxuqiipgbu"
-
     def test_home_page_title(self, setup):
         self.driver = setup
         self.driver.get(self.base_url)
         actual_title = self.driver.title
-        self.driver.close()
 
         expected_title = "Login | Salesforce"
         if actual_title == expected_title:
@@ -22,10 +22,12 @@ class TestLogin(Test):
     def test_login(self, setup):
         self.driver = setup
         self.driver.get(self.base_url)
-        self.login_page = LoginPage(self.driver)
-        self.login_page.set_username(username=self.username)
-        self.login_page.set_password(password=self.password)
-        self.login_page.click_login_button()
+        self.login_action = LoginAction(self.driver)
+        self.login_page = self.login_action.page
+        self.login_action.fill_username(username=self.username)
+        self.login_action.fill_password(password=self.password)
+        self.login_page.login_button().click()
+        time.sleep(2)
         actual_title = self.driver.title
 
         """
@@ -40,10 +42,8 @@ class TestLogin(Test):
         else:
             assert False
 
-        setup_home_link_xpath = '//a[@class="slds-tree__item-label" and contains(@href, "/SetupOneHome/")]'
-        self.wait(setup_home_link_xpath, setup)
+        WebDriverWait(self.driver, 10).until(ec.presence_of_element_located((By.XPATH, '//li[@aria-label="Setup Home"]')))
         actual_title = self.driver.title
-        self.driver.close()
 
         if actual_title == expected_title_after_full_page_load:
             assert True

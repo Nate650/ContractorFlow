@@ -1,5 +1,6 @@
 import time
 
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.common.exceptions import NoSuchElementException, InvalidSelectorException
@@ -12,10 +13,6 @@ from tests.test import Test
 
 
 class TestOpportunity(Test):
-    base_url = "https://efficiency-customization-c2-dev-ed.scratch.my.salesforce.com/"
-    username = "test-g47godb2ia5t@example.com"
-    password = "&9qNxuqiipgbu"
-
     def test_nav_to_opportunity_listing_page(self, setup):
         self.driver = setup
         self.driver.get(self.base_url)
@@ -32,7 +29,7 @@ class TestOpportunity(Test):
         # Verify the correct page was loaded by checking for the presence of the "New" button at the upper right
         try:
             WebDriverWait(self.driver, 7).until(
-                ec.element_to_be_clickable(self.opportunity_page.new_button()),
+                ec.visibility_of_element_located((By.XPATH, '//a[@title="New"]')),
                 'Failure: "New" button not found')
             assert True
         except NoSuchElementException:
@@ -52,7 +49,7 @@ class TestOpportunity(Test):
         self.login_action.log_in(self.username, self.password)
         self.opportunity_action.nav_to_listing()
         WebDriverWait(self.driver, 7).until(
-            ec.element_to_be_clickable(self.opportunity_page.new_button()),
+            ec.visibility_of_element_located((By.XPATH, '//a[@title="New"]')),
             'Failure: "New" button not found').click()
         unique_name = self.opportunity_action.fill_required_fields()
         self.opportunity_page.save_button().click()
