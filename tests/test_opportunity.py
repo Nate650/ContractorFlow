@@ -25,13 +25,10 @@ class TestOpportunity(Test):
 
         self.login_action.log_in(self.username, self.password)
         self.opportunity_action.nav_to_listing()
-        time.sleep(3)
         # Verify the correct page was loaded by checking for the presence of the "New" button at the upper right
         try:
-            WebDriverWait(self.driver, 7).until(
-                ec.visibility_of_element_located((By.XPATH, '//a[@title="New"]')),
-                'Failure: "New" button not found')
-            assert True
+            if self.opportunity_page.new_button():
+                assert True
         except NoSuchElementException:
             assert False, 'Failure: "New" button not found'
 
@@ -48,12 +45,9 @@ class TestOpportunity(Test):
 
         self.login_action.log_in(self.username, self.password)
         self.opportunity_action.nav_to_listing()
-        WebDriverWait(self.driver, 7).until(
-            ec.visibility_of_element_located((By.XPATH, '//a[@title="New"]')),
-            'Failure: "New" button not found').click()
+        self.opportunity_page.new_button().click()
         unique_name = self.opportunity_action.fill_required_fields()
         self.opportunity_page.save_button().click()
-        time.sleep(2)
         # After creating new opportunity, check for the presence of the success alert at the top
         try:
             if self.opportunity_page.successful_opportunity_creation_message(value=unique_name):
@@ -61,21 +55,14 @@ class TestOpportunity(Test):
         except InvalidSelectorException:
             assert False, "Failure: Creation of new opportunity failed"
         assert self.opportunity_page.opportunity_name().text == unique_name, "Failure: New opportunity name does not match expected name"
-        time.sleep(3)
+        # Allow some time for newly created opportunity to populate in search
+        time.sleep(5)
         self.global_search.search_bar_button().click()
-        time.sleep(3)
-        try:
-            if self.global_search_action.enter_and_click_search_term(search_term=unique_name):
-                assert True
-        except NoSuchElementException:
-            assert False, "Failure: Newly created opportunity not found in search results"
-        time.sleep(3)
-        self.opportunity_page.edit_button().click()
-        time.sleep(2)
+        self.global_search_action.enter_and_click_search_term(search_term=unique_name)
+        self.opportunity_action.click_edit_button()
         new_stage_value = "Value Proposition"
         self.opportunity_action.select_stage_dropdown_value(new_stage_value)
-        self.opportunity_page.save_button().click()
-        time.sleep(3)
+        self.opportunity_action.save()
         self.driver.refresh()
         time.sleep(5)
         assert self.opportunity_page.opportunity_name().text == unique_name, "Failure: Actual page does not match expected opportunity detail page"

@@ -28,7 +28,6 @@ class OpportunityAction:
 
     def select_stage_dropdown_value(self, value):
         self.page.opportunity_stage_dropdown().click()
-        time.sleep(2)
         self.page.opportunity_stage_dropdown_value(value).click()
 
     def fill_required_fields(self) -> str:
@@ -42,3 +41,12 @@ class OpportunityAction:
         self.fill_date(options.close_date)
         self.select_stage_dropdown_value(value=options.stage)
         return unique_name
+
+    def save(self):
+        self.page.save_button().click()
+        self.page.wait_until_disappears(self.page.save_button())
+
+    def click_edit_button(self):
+        self.page.edit_button().click()
+        # Wait for "Save" button to appear in modal before taking further action
+        self.page.save_button()

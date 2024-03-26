@@ -27,7 +27,6 @@ class TestLogin(Test):
         self.login_action.fill_username(username=self.username)
         self.login_action.fill_password(password=self.password)
         self.login_page.login_button().click()
-        time.sleep(2)
         actual_title = self.driver.title
 
         """
