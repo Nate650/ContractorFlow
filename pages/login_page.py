@@ -13,5 +13,8 @@ class LoginPage(Page):
     def login_button(self) -> WebElement:
         return self.find_element(By.ID, 'Login')
 
+    def login_failure_error(self) -> WebElement:
+        return self.find_element(By.XPATH, '//div[@id="error"]')
+
     def most_recently_used_span(self) -> WebElement:
         return self.find_element(By.XPATH, '//span[text()="Most Recently Used"]')

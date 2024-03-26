@@ -48,3 +48,13 @@ class TestLogin(Test):
             assert True
         else:
             assert False
+
+    def test_login_failure(self, setup):
+        self.driver = setup
+        self.driver.get(self.base_url)
+        self.login_action = LoginAction(self.driver)
+        self.login_page = self.login_action.page
+        self.login_action.fill_username(username=self.username)
+        self.login_action.fill_password(password=self.password + "this_should_cause_login_to_fail")
+        self.login_page.login_button().click()
+        assert self.login_page.login_failure_error().text == "Please check your username and password. If you still can't log in, contact your Salesforce administrator."
