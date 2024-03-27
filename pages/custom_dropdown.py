@@ -6,7 +6,7 @@ class CustomDropdown:
     def __init__(self, element: WebElement):
         self.element = element
 
-    def select_value(self, value):
+    def select_value(self, value) -> WebElement:
         options = self.element.find_elements(By.XPATH, './/lightning-base-combobox-item')
         for option_element in options:
             if option_element.text == value:
