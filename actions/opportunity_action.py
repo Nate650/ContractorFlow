@@ -28,7 +28,7 @@ class OpportunityAction:
 
     def select_stage_dropdown_value(self, value):
         self.page.opportunity_stage_dropdown().click()
-        self.page.opportunity_stage_dropdown_value(value).click()
+        self.page.opportunity_stage_dropdown().select_value(value).click()
 
     def fill_required_fields(self) -> str:
         options = OpportunityOptions()

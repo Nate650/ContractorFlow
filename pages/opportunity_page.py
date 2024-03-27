@@ -1,21 +1,17 @@
-import utilities.common
-
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from .page import Page
+from .custom_dropdown import CustomDropdown
 
 
 class OpportunityPage(Page):
     def new_button(self):
         return self.find_element(By.XPATH, '//a[@title="New"]')
 
-    def opportunity_stage_dropdown(self) -> WebElement:
-        return self.find_element(By.XPATH, '//*[@field-label="Stage"]//button[@role="combobox"]')
-
-    def opportunity_stage_dropdown_value(self, value) -> WebElement:
-        return self.find_element(By.XPATH, '//lightning-base-combobox-item[@data-value="{}"]'.format(value))
+    def opportunity_stage_dropdown(self) -> CustomDropdown:
+        return CustomDropdown(self.find_element(By.XPATH, '//div[@aria-label="Stage"]/..'))
 
     def opportunity_name_field(self) -> WebElement:
         return self.find_element(By.XPATH, '//input[@name="Name"]')
